@@ -1,0 +1,374 @@
+{
+  "address": "3iowdFMjwgiGVPyQDRQyMzVzdF7qiMGK1rd85zzDj4HK",
+  "metadata": {
+    "name": "multisig",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "docs": [
+    "多签钱包程序模块，包含所有指令逻辑"
+  ],
+  "instructions": [
+    {
+      "name": "approve",
+      "docs": [
+        "批准交易"
+      ],
+      "discriminator": [
+        69,
+        74,
+        217,
+        36,
+        115,
+        117,
+        97,
+        76
+      ],
+      "accounts": [
+        {
+          "name": "multisig"
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_transaction",
+      "docs": [
+        "创建交易提案",
+        "- `pid`: 目标程序 ID",
+        "- `accs`: 交易涉及的账户列表",
+        "- `data`: 交易指令数据"
+      ],
+      "discriminator": [
+        227,
+        193,
+        53,
+        239,
+        55,
+        126,
+        112,
+        105
+      ],
+      "accounts": [
+        {
+          "name": "multisig"
+        },
+        {
+          "name": "transaction",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "proposer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "pid",
+          "type": "pubkey"
+        },
+        {
+          "name": "accs",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "TransactionAccount"
+              }
+            }
+          }
+        },
+        {
+          "name": "data",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "execute_transaction",
+      "docs": [
+        "执行交易"
+      ],
+      "discriminator": [
+        231,
+        173,
+        49,
+        91,
+        235,
+        24,
+        68,
+        19
+      ],
+      "accounts": [
+        {
+          "name": "multisig",
+          "relations": [
+            "transaction"
+          ]
+        },
+        {
+          "name": "multisig_signer",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "multisig"
+              }
+            ]
+          }
+        },
+        {
+          "name": "transaction",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "初始化多签钱包",
+        "- `owners`: 多签所有者公钥列表",
+        "- `threshold`: 执行交易所需的最小签名数",
+        "- `nonce`: PDA 签名用的随机数"
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "multisig",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "owners",
+          "type": {
+            "vec": "pubkey"
+          }
+        },
+        {
+          "name": "threshold",
+          "type": "u64"
+        },
+        {
+          "name": "nonce",
+          "type": "u8"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Multisig",
+      "discriminator": [
+        224,
+        116,
+        121,
+        186,
+        68,
+        161,
+        79,
+        236
+      ]
+    },
+    {
+      "name": "Transaction",
+      "discriminator": [
+        11,
+        24,
+        174,
+        129,
+        203,
+        117,
+        242,
+        23
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidOwner",
+      "msg": "The given owner is not part of this multisig."
+    },
+    {
+      "code": 6001,
+      "name": "InvalidThreshold",
+      "msg": "Threshold must be > 0 and <= total owners."
+    },
+    {
+      "code": 6002,
+      "name": "InvalidOwners",
+      "msg": "Owners list cannot be empty."
+    },
+    {
+      "code": 6003,
+      "name": "AlreadyExecuted",
+      "msg": "Transaction has already been executed."
+    },
+    {
+      "code": 6004,
+      "name": "NotEnoughSignatures",
+      "msg": "Not enough signers to execute transaction."
+    },
+    {
+      "code": 6005,
+      "name": "OwnerSetChanged",
+      "msg": "The owner set has changed since the transaction was created."
+    },
+    {
+      "code": 6006,
+      "name": "TooManyOwners",
+      "msg": "Too many owners provided."
+    },
+    {
+      "code": 6007,
+      "name": "TooManyAccounts",
+      "msg": "Too many accounts in transaction."
+    },
+    {
+      "code": 6008,
+      "name": "InvalidMultisig",
+      "msg": "Invalid multisig account."
+    },
+    {
+      "code": 6009,
+      "name": "InvalidAccounts",
+      "msg": "Invalid accounts provided for execution."
+    }
+  ],
+  "types": [
+    {
+      "name": "Multisig",
+      "docs": [
+        "多签钱包账户的数据结构"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owners",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "u64"
+          },
+          {
+            "name": "nonce",
+            "type": "u8"
+          },
+          {
+            "name": "owners_version",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Transaction",
+      "docs": [
+        "交易提案账户的数据结构"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "multisig",
+            "type": "pubkey"
+          },
+          {
+            "name": "program_id",
+            "type": "pubkey"
+          },
+          {
+            "name": "accounts",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "TransactionAccount"
+                }
+              }
+            }
+          },
+          {
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "name": "signers",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "executed_at",
+            "type": "i64"
+          },
+          {
+            "name": "owners_version",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TransactionAccount",
+      "docs": [
+        "交易账户的元数据结构"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "is_signer",
+            "type": "bool"
+          },
+          {
+            "name": "is_writable",
+            "type": "bool"
+          }
+        ]
+      }
+    }
+  ]
+}
